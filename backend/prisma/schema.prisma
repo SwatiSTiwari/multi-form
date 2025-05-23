@@ -1,0 +1,51 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model Form {
+  id               String            @id @default(auto()) @map("_id") @db.ObjectId
+  status           String            @default("in-progress")
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  completedAt      DateTime?
+  personalInfo     PersonalInfo?
+  educationalStatus EducationalStatus?
+  projects         Project[]
+}
+
+model PersonalInfo {
+  id           String  @id @default(auto()) @map("_id") @db.ObjectId
+  name         String
+  email        String
+  addressLine1 String
+  addressLine2 String?
+  city         String
+  state        String
+  zipcode      String
+  form         Form    @relation(fields: [formId], references: [id])
+  formId       String  @unique @db.ObjectId
+}
+
+model EducationalStatus {
+  id         String  @id @default(auto()) @map("_id") @db.ObjectId
+  isStudying Boolean @default(false)
+  studyingAt String?
+  form       Form    @relation(fields: [formId], references: [id])
+  formId     String  @unique @db.ObjectId
+}
+
+model Project {
+  id          String  @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  description String
+  form        Form    @relation(fields: [formId], references: [id])
+  formId      String  @db.ObjectId
+}
